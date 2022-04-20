@@ -1,10 +1,10 @@
-# Drug Synergies Workflow
+# Single Drug Prediction Workflow
 
-Drug Synergies for Cancer Treatment
+TO BE COMPLETED [ONE LINER DESCRIPTION]
 
 ## Table of Contents
 
-- [Drug Synergies Workflow](#drug-synergies-workflow)
+- [Single Drug Prediction Workflow](#single-drug-prediction-workflow)
   - [Table of Contents](#table-of-contents)
   - [Description](#description)
   - [Contents](#contents)
@@ -31,7 +31,7 @@ TO BE COMPLETED
 ### Building Blocks
 
 The ``BuildingBlocks`` folder contains the script to install the
-Building Blocks used in the Drug Synergies Workflow.
+Building Blocks used in the Single Drug Prediction Workflow.
 
 ### Workflows
 
@@ -88,7 +88,7 @@ This section explains the requirements and usage for the Drug Synergies Workflow
 3. Clone this repository
 
    ```bash
-   git clone https://github.com/PerMedCoE/drug-synergies-workflow.git
+   git clone https://github.com/PerMedCoE/single-drug-prediction.git
    ```
 
 4. Install the `BuildingBlocks` package
