@@ -7,15 +7,15 @@ CURRENT_DIR=$(pwd)
 
 cd ../../BuildingBlocks
 
-cd carnival_feature_merger
+cd Carnival_feature_merger
 ./clean.sh
 cd ..
 
-cd carnival_gex_preprocess
+cd Carnival_gex_preprocess
 ./clean.sh
 cd ..
 
-cd carnivalpy
+cd CarnivalPy
 ./clean.sh
 cd ..
 
@@ -31,15 +31,15 @@ cd progeny
 ./clean.sh
 cd ..
 
-cd tfenrichment
+cd tf_enrichment
 ./clean.sh
 cd ..
 
-# cd carnival
+# cd Carnival
 # ./clean.sh
 # cd ..
 
-# cd cellnopt
+# cd CellNOpt
 # ./clean.sh
 # cd ..
 
