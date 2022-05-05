@@ -1,15 +1,11 @@
 #!/usr/bin/env bash
 
-echo "Installing covid-19-workflow required Building Blocks... Please wait..."
+echo "Cleaning single drug prediction workflow required Building Blocks... Please wait..."
 
 CURRENT_DIR=$(pwd)
 # SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 cd ../../BuildingBlocks
-
-cd carnival
-./clean.sh
-cd ..
 
 cd carnival_feature_merger
 ./clean.sh
@@ -20,14 +16,6 @@ cd carnival_gex_preprocess
 cd ..
 
 cd carnivalpy
-./clean.sh
-cd ..
-
-cd cellnopt
-./clean.sh
-cd ..
-
-cd export_solver_hdf5
 ./clean.sh
 cd ..
 
@@ -46,5 +34,17 @@ cd ..
 cd tfenrichment
 ./clean.sh
 cd ..
+
+# cd carnival
+# ./clean.sh
+# cd ..
+
+# cd cellnopt
+# ./clean.sh
+# cd ..
+
+# cd export_solver_hdf5
+# ./clean.sh
+# cd ..
 
 cd ${CURRENT_DIR}

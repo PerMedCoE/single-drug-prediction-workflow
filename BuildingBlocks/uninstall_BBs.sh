@@ -1,15 +1,11 @@
 #!/usr/bin/env bash
 
-echo "Installing covid-19-workflow required Building Blocks... Please wait..."
+echo "Uninstalling covid-19-workflow required Building Blocks... Please wait..."
 
 CURRENT_DIR=$(pwd)
 # SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 cd ../../BuildingBlocks
-
-cd carnival
-./uninstall.sh
-cd ..
 
 cd carnival_feature_merger
 ./uninstall.sh
@@ -20,14 +16,6 @@ cd carnival_gex_preprocess
 cd ..
 
 cd carnivalpy
-./uninstall.sh
-cd ..
-
-cd cellnopt
-./uninstall.sh
-cd ..
-
-cd export_solver_hdf5
 ./uninstall.sh
 cd ..
 
@@ -46,5 +34,17 @@ cd ..
 cd tfenrichment
 ./uninstall.sh
 cd ..
+
+# cd carnival
+# ./uninstall.sh
+# cd ..
+
+# cd cellnopt
+# ./uninstall.sh
+# cd ..
+
+# cd export_solver_hdf5
+# ./uninstall.sh
+# cd ..
 
 cd ${CURRENT_DIR}

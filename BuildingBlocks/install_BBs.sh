@@ -7,10 +7,6 @@ CURRENT_DIR=$(pwd)
 
 cd ../../BuildingBlocks
 
-cd carnival
-./install.sh
-cd ..
-
 cd carnival_feature_merger
 ./install.sh
 cd ..
@@ -20,14 +16,6 @@ cd carnival_gex_preprocess
 cd ..
 
 cd carnivalpy
-./install.sh
-cd ..
-
-cd cellnopt
-./install.sh
-cd ..
-
-cd export_solver_hdf5
 ./install.sh
 cd ..
 
@@ -46,5 +34,17 @@ cd ..
 cd tfenrichment
 ./install.sh
 cd ..
+
+# cd carnival
+# ./install.sh
+# cd ..
+
+# cd cellnopt
+# ./install.sh
+# cd ..
+
+# cd export_solver_hdf5
+# ./install.sh
+# cd ..
 
 cd ${CURRENT_DIR}
