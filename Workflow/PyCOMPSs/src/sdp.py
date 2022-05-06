@@ -1,17 +1,17 @@
 #!/usr/bin/python3
 
 import os
-import csv
+import shutil
 
 # To set building block debug mode
 from permedcoe import set_debug
 # Import building block tasks
-from carnival_gex_preprocess_BB import preprocess as carnival_gex_preprocess
+from Carnival_gex_preprocess_BB import preprocess as carnival_gex_preprocess
 from progeny_BB import progeny
 from omnipath_BB import omnipath
-from tfenrichment_BB import tf_enrichment
-from carnivalpy_BB import carnivalpy
-from carnival_feature_merger_BB import feature_merger as carnival_feature_merger
+from tf_enrichment_BB import tf_enrichment
+from CarnivalPy_BB import carnivalpy
+from Carnival_feature_merger_BB import feature_merger as carnival_feature_merger
 from ml_jax_drug_prediction_BB import ml as ml_jax_drug_prediction
 # TODO: carnival_BB not used
 # TODO: cellnopt_BB not used
@@ -21,7 +21,6 @@ from ml_jax_drug_prediction_BB import ml as ml_jax_drug_prediction
 from utils import parse_input_parameters
 
 # PyCOMPSs imports
-from pycompss.api.api import compss_wait_on_directory
 from pycompss.api.api import compss_wait_on_file
 from pycompss.api.api import compss_barrier
 
@@ -62,11 +61,11 @@ def main():
         carnival_gex_preprocess(input_file=args.gene_expression,
                                 output_file=gex_csv,
                                 col_genes="GENE_SYMBOLS",
-                                scale="GENE_title",
-                                exclude_cols="FALSE",
+                                scale="FALSE",
+                                exclude_cols="GENE_title",
                                 tsv="TRUE",
-                                remove="TRUE",
-                                verbose="DATA.")
+                                remove="DATA.",
+                                verbose="TRUE")
     else:
         print("ERROR: Please provide --gene_expression or --gex")
         return
@@ -78,21 +77,21 @@ def main():
             gex_n_csv = os.path.join(args.results_folder, "gex_n.csv")
         else:
             gex_n_csv = args.gex_n
-        carnival_gex_preprocess(input_file=args.gene_expression,
+        carnival_gex_preprocess(input_file=gex_csv,
                                 output_file=gex_n_csv,
                                 col_genes="GENE_SYMBOLS",
-                                scale="GENE_title",
-                                exclude_cols="FALSE",
-                                tsv="TRUE",
-                                remove="TRUE",
-                                verbose="DATA.")
+                                scale="TRUE",
+                                exclude_cols="GENE_title",
+                                tsv="FALSE",
+                                remove="DATA.",
+                                verbose="TRUE")
     else:
         print("ERROR: Please provide --gene_expression or --gex_n")
         return
 
-    if args.progeny and os.path.exists(args.progeny):
+    if args.progeny and not os.path.exists(args.progeny):
         # 3rd STEP: Use the gene expression data to run Progeny and estimate pathway activities
-        if os.path.exists(args.progeny):
+        if not os.path.exists(args.progeny):
             progeny_csv = os.path.join(args.results_folder, "progeny.csv")
         else:
             progeny_csv = args.progeny
@@ -108,18 +107,20 @@ def main():
                 zscore="FALSE",
                 verbose="TRUE"
         )
+    else:
+        print("WARNING: Found existing progeny: " + str(args.progeny))
 
-    if args.network and os.path.exists(args.network):
+    if args.network and not os.path.exists(args.network):
         # 4th STEP: Get SIF from omnipath
-        if os.path.exists(args.network):
+        if not os.path.exists(args.network):
             network_csv = os.path.join(args.results_folder, "network.csv")
         else:
             network_csv = args.network
-        # TODO: Could omnipath accept files instead of a folder?
-        input_file = "TO_BE_DEFINED"
-        omnipath(input_file=input_file,  # TODO: MISSING VALUE
+        omnipath(debug=False,
                  output_file=network_csv
         )
+    else:
+        print("WARNING: Found existing network: " + str(args.network))
 
     for cell in cells:
         print("Processing %s" % cell)
@@ -131,50 +132,59 @@ def main():
         cell_measurement_csv = os.path.join(cell_result_folder, "measurements.csv")
         tf_enrichment(input_file=gex_n_csv,
                       output_file=cell_measurement_csv,
-                      weight_col=cell,
-                      source="GENE_SYMBOLS",
-                      id_col="tf",
                       tsv="FALSE",
-                      minsize="10",
+                      weight_col=cell,
+                      id_col="GENE_SYMBOLS",
+                      minsize=10,
+                      source="tf",
                       confidence="A,B,C",
-                      verbose="TRUE"
+                      verbose="TRUE",
+                      pval_threshold=0.1,
+                      export_carnival="TRUE"
         )
 
-        # 6th STEP: Run CarnivalPy on the sample using gurobi
-        # TODO: carnivalpy does not have the same parameters!
-        carnivalpy(path="path",        # TODO: MISSING VALUE
-                   penalty="penalty",  # TODO: MISSING VALUE
-                   solver="solver"     # TODO: MISSING VALUE
+    compss_barrier()
+    compss_wait_on_file(network_csv)
+    for cell in cells:
+        cell_result_folder = os.path.join(args.results_folder, cell)
+        cell_measurement_csv = os.path.join(cell_result_folder, "measurements.csv")
+        shutil.copyfile(network_csv, cell_result_folder + "/network.csv")
+        compss_wait_on_file(cell_measurement_csv)
+
+    for cell in cells:
+        # 6th STEP: Run CarnivalPy on the sample using cbc
+        cell_result_folder = os.path.join(args.results_folder, cell)
+        carnival_csv = os.path.join(cell_result_folder, "carnival.csv")
+        carnivalpy(path=cell_result_folder,
+                   penalty=0,
+                   solver="cbc",
+                   tol=0.1,
+                   maxtime=500,
+                   export=carnival_csv,
         )
-        """
-        # Sample call using singularity directly.
-        singularity run -B $CONDA_PREFIX:/opt/env
-                        --env "LD_LIBRARY_PATH=/opt/env/"
-                        carnivalpy/carnivalpy.sif
-                        ${tmpdir}/${cell}
-                        gurobi_mip
-                        0
-                        0.1
-                        300
-                        ${tmpdir}/${cell}/out.rds
-                        ${tmpdir}/${cell}/carnival.csv
-        """
+
+    compss_wait_on_file(progeny_csv)
+    for cell in cells:
+        cell_result_folder = os.path.join(args.results_folder, cell)
+        carnival_csv = os.path.join(cell_result_folder, "carnival.csv")
+        compss_wait_on_file(carnival_csv)
 
     # 7th STEP: Merge the features into a single CSV, focus only on some specific genes
-    cell_features = "cell_features.csv"
+    cell_features_csv = "cell_features.csv"
     carnival_feature_merger(input_dir=args.results_folder,
-                            output_folder=cell_features,
-                            feature_file=progeny_csv,
-                            merge_csv_file=args.genelist,
-                            merge_csv_index="",  # TODO: MISSING VALUE
-                            merge_csv_prefix=""  # TODO: MISSING VALUE
+                            output_file=cell_features_csv,
+                            feature_file=args.genelist,
+                            merge_csv_file=progeny_csv,
+                            merge_csv_index="sample",
+                            merge_csv_prefix="F_"
     )
 
     # 8th STEP: Train a model to predict IC50 values for unknown cells (using the progeny+carnival features) and known drugs
-    ml_jax_drug_prediction(input_file=".x",  # TODO: MISSING VALUE
-                           output_file="model.npz",
+    model_npz = "model.npz"
+    ml_jax_drug_prediction(input_file=".x",
+                           output_file=model_npz,
                            drug_features=".none",
-                           cell_features=cell_features,
+                           cell_features=cell_features_csv,
                            epochs="200",
                            adam_lr="0.1",
                            reg="0.001",
@@ -182,8 +192,7 @@ def main():
                            test_drugs="0.1",
                            test_cells="0.1"
     )
-    compss_barrier()
-
+    compss_wait_on_file(model_npz)
 
 
 if __name__ == "__main__":
