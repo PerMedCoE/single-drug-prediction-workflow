@@ -165,7 +165,7 @@ All Building Blocks are already installed in MN4, and the Single Drug Prediction
 
    > **TIP**: Include the loading into your `${HOME}/.bashrc` file to load it automatically on the session start.
 
-   This commands will load COMPSs and the permedcoe package which provides all necessary dependencies, as well as the path to the singularity container images (`PERMEDCOE_IMAGES` environment variable) and testing dataset (`DRUG_SYNERGIES_WORKFLOW_DATASET` environment variable).
+   This commands will load COMPSs and the permedcoe package which provides all necessary dependencies, as well as the path to the singularity container images (`PERMEDCOE_IMAGES` environment variable) and testing dataset (`SINGLE_DRUG_PREDICTION_WORKFLOW_DATASET` environment variable).
 
 2. Get a copy of the pilot workflow into your desired folder
 
