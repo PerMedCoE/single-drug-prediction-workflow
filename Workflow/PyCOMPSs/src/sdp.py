@@ -51,80 +51,71 @@ def main():
         cells_raw = cell_list_fd.readlines()
         cells = [cell.strip() for cell in cells_raw]
 
-    if (not args.gex or not os.path.exists(args.gex)) and \
-        args.gene_expression:
+    if args.gex:
         # 1st STEP: Remove the DATA. prefix from the columns
+        gex_csv = args.gex
         if not os.path.exists(args.gex):
-            gex_csv = os.path.join(args.results_folder, "gex.csv")
-        else:
-            gex_csv = args.gex
-        carnival_gex_preprocess(input_file=args.gene_expression,
-                                output_file=gex_csv,
-                                col_genes="GENE_SYMBOLS",
-                                scale="FALSE",
-                                exclude_cols="GENE_title",
-                                tsv="TRUE",
-                                remove="DATA.",
-                                verbose="TRUE")
+            carnival_gex_preprocess(input_file=args.gene_expression,
+                                    output_file=gex_csv,
+                                    col_genes="GENE_SYMBOLS",
+                                    scale="FALSE",
+                                    exclude_cols="GENE_title",
+                                    tsv="TRUE",
+                                    remove="DATA.",
+                                    verbose="TRUE"
+            )
     else:
         print("ERROR: Please provide --gene_expression or --gex")
         return
 
-    if (not args.gex_n or not os.path.exists(args.gex_n)) and \
-        args.gene_expression:
+    if args.gex_n:
         # 2nd STEP: Do the same but this time scale also genes across cell lines
+        gex_n_csv = args.gex_n
         if not os.path.exists(args.gex_n):
-            gex_n_csv = os.path.join(args.results_folder, "gex_n.csv")
-        else:
-            gex_n_csv = args.gex_n
-        carnival_gex_preprocess(input_file=gex_csv,
-                                output_file=gex_n_csv,
-                                col_genes="GENE_SYMBOLS",
-                                scale="TRUE",
-                                exclude_cols="GENE_title",
-                                tsv="FALSE",
-                                remove="DATA.",
-                                verbose="TRUE")
+            carnival_gex_preprocess(input_file=gex_csv,
+                                    output_file=gex_n_csv,
+                                    col_genes="GENE_SYMBOLS",
+                                    scale="TRUE",
+                                    exclude_cols="GENE_title",
+                                    tsv="FALSE",
+                                    remove="DATA.",
+                                    verbose="TRUE"
+            )
     else:
         print("ERROR: Please provide --gene_expression or --gex_n")
         return
 
-    if args.progeny and not os.path.exists(args.progeny):
+    if args.progeny:
         # 3rd STEP: Use the gene expression data to run Progeny and estimate pathway activities
+        progeny_csv = args.progeny
         if not os.path.exists(args.progeny):
-            progeny_csv = os.path.join(args.results_folder, "progeny.csv")
-        else:
-            progeny_csv = args.progeny
-        progeny(input_file=gex_csv,
-                ouptut_file=progeny_csv,
-                organism="Human",
-                ntop="100",
-                col_genes="GENE_SYMBOLS",
-                scale="TRUE",
-                exclude_cols="GENE_title",
-                tsv="FALSE",
-                perms="1",
-                zscore="FALSE",
-                verbose="TRUE"
-        )
+            progeny(input_file=gex_csv,
+                    output_file=progeny_csv,
+                    organism="Human",
+                    ntop="100",
+                    col_genes="GENE_SYMBOLS",
+                    scale="TRUE",
+                    exclude_cols="GENE_title",
+                    tsv="FALSE",
+                    perms="1",
+                    zscore="FALSE",
+                    verbose="TRUE"
+            )
     else:
         print("WARNING: Found existing progeny: " + str(args.progeny))
 
-    if args.network and not os.path.exists(args.network):
+    if args.network:
         # 4th STEP: Get SIF from omnipath
+        network_csv = args.network
         if not os.path.exists(args.network):
-            network_csv = os.path.join(args.results_folder, "network.csv")
-        else:
-            network_csv = args.network
-        omnipath(debug=False,
-                 output_file=network_csv
-        )
+            omnipath(debug=False,
+                     output_file=network_csv
+            )
     else:
         print("WARNING: Found existing network: " + str(args.network))
 
     for cell in cells:
         print("Processing %s" % cell)
-
         cell_result_folder = os.path.join(args.results_folder, cell)
         os.makedirs(cell_result_folder, exist_ok=True)
 
@@ -143,7 +134,6 @@ def main():
                       export_carnival="TRUE"
         )
 
-    compss_barrier()
     compss_wait_on_file(network_csv)
     for cell in cells:
         cell_result_folder = os.path.join(args.results_folder, cell)
@@ -170,7 +160,7 @@ def main():
         compss_wait_on_file(carnival_csv)
 
     # 7th STEP: Merge the features into a single CSV, focus only on some specific genes
-    cell_features_csv = "cell_features.csv"
+    cell_features_csv = os.path.join(args.results_csvs_folder, "cell_features.csv")
     carnival_feature_merger(input_dir=args.results_folder,
                             output_file=cell_features_csv,
                             feature_file=args.genelist,
@@ -180,8 +170,8 @@ def main():
     )
 
     # 8th STEP: Train a model to predict IC50 values for unknown cells (using the progeny+carnival features) and known drugs
-    model_npz = "model.npz"
-    ml_jax_drug_prediction(input_file=".x",
+    model_npz = os.path.join(args.results_csvs_folder, "model.npz")
+    ml_jax_drug_prediction(input_file="dummy.x",
                            output_file=model_npz,
                            drug_features=".none",
                            cell_features=cell_features_csv,

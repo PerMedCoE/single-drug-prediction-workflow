@@ -34,6 +34,9 @@ def create_parser():
     parser.add_argument("--results_folder", type=str,
                         help="Results folder",
                         required=True)
+    parser.add_argument("--results_csvs_folder", type=str,
+                        help="Results CSVS folder",
+                        required=True)
     return parser
 
 
@@ -53,6 +56,7 @@ def parse_input_parameters(show=True):
     args.progeny = os.path.realpath(args.progeny)
     args.network = os.path.realpath(args.network)
     args.results_folder = os.path.realpath(args.results_folder)
+    args.results_csvs_folder = os.path.realpath(args.results_csvs_folder)
     if show:
         print()
         print(">>> WELCOME TO THE SINGLE DRUG PREDICTION WORKFLOW")
@@ -67,6 +71,7 @@ def parse_input_parameters(show=True):
         print("\t- Gene expression data for progeny: %s" % args.progeny)
         print("\t- Network file: %s" % args.network)
         print("\t- Results folder: %s" % args.results_folder)
+        print("\t- Results CSVs folder: %s" % args.results_csvs_folder)
         print("\n")
     return args
 
