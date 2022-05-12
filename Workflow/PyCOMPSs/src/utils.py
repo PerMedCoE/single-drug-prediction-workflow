@@ -31,6 +31,9 @@ def create_parser():
     parser.add_argument("--genelist", type=str,
                         help="Gene list (.csv)",
                         required=True)
+    parser.add_argument("--jax_input", type=str,
+                        help="Jax input file",
+                        required=True)
     parser.add_argument("--results_folder", type=str,
                         help="Results folder",
                         required=True)
@@ -70,6 +73,7 @@ def parse_input_parameters(show=True):
             print("\t- Gene expression data scale: %s" % args.gex_n)
         print("\t- Gene expression data for progeny: %s" % args.progeny)
         print("\t- Network file: %s" % args.network)
+        print("\t- Jax input file: %s" % args.jax_input)
         print("\t- Results folder: %s" % args.results_folder)
         print("\t- Results CSVs folder: %s" % args.results_csvs_folder)
         print("\n")

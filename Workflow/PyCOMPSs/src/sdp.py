@@ -171,7 +171,7 @@ def main():
 
     # 8th STEP: Train a model to predict IC50 values for unknown cells (using the progeny+carnival features) and known drugs
     model_npz = os.path.join(args.results_csvs_folder, "model.npz")
-    ml_jax_drug_prediction(input_file="dummy.x",
+    ml_jax_drug_prediction(input_file=args.jax_input,
                            output_file=model_npz,
                            drug_features=".none",
                            cell_features=cell_features_csv,

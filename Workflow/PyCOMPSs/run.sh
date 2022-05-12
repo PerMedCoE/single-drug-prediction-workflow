@@ -28,5 +28,6 @@ runcompss -g -t \
         --progeny ${results_csvs}/progeny.csv \
         --network ${results_csvs}/network.csv \
         --genelist ${results_csvs}/genelist.csv \
+        --jax_input dummy.x \
         --results_folder ${results} \
         --results_csvs_folder ${results_csvs}
