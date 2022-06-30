@@ -38,12 +38,18 @@ def main():
     # GET INPUT PARAMETERS
     args = parse_input_parameters()
 
-    # CHECK RESULTS FOLDER
+    # CHECK RESULTS FOLDERS
     if not os.path.exists(args.results_folder):
         os.makedirs(args.results_folder, exist_ok=True)
     else:
         # Do not continue if results folder exists
         print("ERROR: Results folder exists: %s" % args.results_folder)
+        return
+    if not os.path.exists(args.results_csvs_folder):
+        os.makedirs(args.results_csvs_folder, exist_ok=True)
+    else:
+        # Do not continue if results csvs folder exists
+        print("ERROR: Results CSVs folder exists: %s" % args.results_csvs_folder)
         return
 
     # Initial STEP: Read the list of cells to process
