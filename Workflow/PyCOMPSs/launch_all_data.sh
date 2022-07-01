@@ -36,6 +36,10 @@ enqueue_compss \
     $(pwd)/src/sdp.py \
         --cell_list ${data}/cell_list_example.txt \
         --gene_expression ${data}/Cell_line_RMA_proc_basalExp.txt \
+        --gex ${data}/gex.csv \
+        --gex_n ${data}/gex_n.csv \
+        --progeny ${data}/progeny.csv \
+        --network ${data}/network.csv \
         --genelist ${results_csvs}/genelist.csv \
         --jax_input ${data}/IC50 \
         --results_folder ${results} \
