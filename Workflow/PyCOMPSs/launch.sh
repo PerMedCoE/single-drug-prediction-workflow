@@ -38,6 +38,7 @@ enqueue_compss \
         --gene_expression ${data}/Cell_line_RMA_proc_basalExp.txt \
         --genelist ${results_csvs}/genelist.csv \
         --jax_input ${data}/IC50 \
+        --network ${data}/network.csv \
         --results_folder ${results} \
         --results_csvs_folder ${results_csvs}
 
