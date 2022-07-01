@@ -43,24 +43,26 @@ def main():
         os.makedirs(args.results_folder, exist_ok=True)
     else:
         # Do not continue if results folder exists
-        print("ERROR: Results folder exists: %s" % args.results_folder)
-        return
+        raise Exception("ERROR: Results folder exists: %s" % args.results_folder)
     if not os.path.exists(args.results_csvs_folder):
         os.makedirs(args.results_csvs_folder, exist_ok=True)
     else:
         # Do not continue if results csvs folder exists
-        print("ERROR: Results CSVs folder exists: %s" % args.results_csvs_folder)
-        return
+        raise Exception("ERROR: Results CSVs folder exists: %s" % args.results_csvs_folder)
 
     # Initial STEP: Read the list of cells to process
     with open(args.cell_list, 'r') as cell_list_fd:
         cells_raw = cell_list_fd.readlines()
         cells = [cell.strip() for cell in cells_raw]
 
+    # 1st STEP: Remove the DATA. prefix from the columns
     if args.gex:
-        # 1st STEP: Remove the DATA. prefix from the columns
         gex_csv = args.gex
-        if not os.path.exists(args.gex):
+    else:
+        gex_csv = os.path.join(args.results_folder, "gex.csv")
+    if not os.path.exists(gex_csv):
+        if args.gene_expression:
+            print("INFO: gex does not exist. Creating in: %s using %s" % (gex_csv, args.gene_expression))
             carnival_gex_preprocess(input_file=args.gene_expression,
                                     output_file=gex_csv,
                                     col_genes="GENE_SYMBOLS",
@@ -70,55 +72,64 @@ def main():
                                     remove="DATA.",
                                     verbose="TRUE"
             )
+        else:
+            raise Exception("ERROR: Please provide --gene_expression if --gex does not exist or is not defined")
     else:
-        print("ERROR: Please provide --gene_expression or --gex")
-        return
+        print("INFO: Using existing gex: %s" % gex_csv)
 
+    # 2nd STEP: Do the same but this time scale also genes across cell lines
     if args.gex_n:
-        # 2nd STEP: Do the same but this time scale also genes across cell lines
         gex_n_csv = args.gex_n
-        if not os.path.exists(args.gex_n):
-            carnival_gex_preprocess(input_file=gex_csv,
-                                    output_file=gex_n_csv,
-                                    col_genes="GENE_SYMBOLS",
-                                    scale="TRUE",
-                                    exclude_cols="GENE_title",
-                                    tsv="FALSE",
-                                    remove="DATA.",
-                                    verbose="TRUE"
-            )
     else:
-        print("ERROR: Please provide --gene_expression or --gex_n")
-        return
+        gex_n_csv = os.path.join(args.results_folder, "gex_n.csv")
+    if not os.path.exists(gex_n_csv):
+        print("INFO: gex_n does not exist. Creating in: %s using %s" % (gex_n_csv, gex_csv))
+        carnival_gex_preprocess(input_file=gex_csv,
+                                output_file=gex_n_csv,
+                                col_genes="GENE_SYMBOLS",
+                                scale="TRUE",
+                                exclude_cols="GENE_title",
+                                tsv="FALSE",
+                                remove="DATA.",
+                                verbose="TRUE"
+        )
+    else:
+        print("INFO: Using existing gex_n: %s" % gex_n_csv)
 
+    # 3rd STEP: Use the gene expression data to run Progeny and estimate pathway activities
     if args.progeny:
-        # 3rd STEP: Use the gene expression data to run Progeny and estimate pathway activities
         progeny_csv = args.progeny
-        if not os.path.exists(args.progeny):
-            progeny(input_file=gex_csv,
-                    output_file=progeny_csv,
-                    organism="Human",
-                    ntop="100",
-                    col_genes="GENE_SYMBOLS",
-                    scale="TRUE",
-                    exclude_cols="GENE_title",
-                    tsv="FALSE",
-                    perms="1",
-                    zscore="FALSE",
-                    verbose="TRUE"
-            )
     else:
-        print("WARNING: Found existing progeny: " + str(args.progeny))
+        progeny_csv = os.path.join(args.results_folder, "progeny.csv")
+    if not os.path.exists(progeny_csv):
+        print("INFO: progeny does not exist. Creating in: %s using %s" % (progeny_csv, gex_csv))
+        progeny(input_file=gex_csv,
+                output_file=progeny_csv,
+                organism="Human",
+                ntop="100",
+                col_genes="GENE_SYMBOLS",
+                scale="TRUE",
+                exclude_cols="GENE_title",
+                tsv="FALSE",
+                perms="1",
+                zscore="FALSE",
+                verbose="TRUE"
+        )
+    else:
+        print("INFO: Using existing progeny: %s" % progeny_csv)
 
+    # 4th STEP: Get SIF from omnipath
     if args.network:
-        # 4th STEP: Get SIF from omnipath
         network_csv = args.network
-        if not os.path.exists(args.network):
-            omnipath(debug=False,
-                     output_file=network_csv
-            )
     else:
-        print("WARNING: Found existing network: " + str(args.network))
+        network_csv = os.path.join(args.results_folder, "network.csv")
+    if not os.path.exists(network_csv):
+        print("INFO: network does not exist. Creating in: %s" % network_csv)
+        omnipath(debug=False,
+                 output_file=network_csv
+        )
+    else:
+        print("INFO: Using existing network: %s" % network_csv)
 
     for cell in cells:
         print("Processing %s" % cell)

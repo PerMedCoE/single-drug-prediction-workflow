@@ -50,14 +50,15 @@ def parse_input_parameters(show=True):
     parser = create_parser()
     args = parser.parse_args()
     args.cell_list = os.path.realpath(args.cell_list)
-    if args.gene_expression:
-        args.gene_expression = os.path.realpath(args.gene_expression)
+    args.gene_expression = os.path.realpath(args.gene_expression)
     if args.gex:
         args.gex = os.path.realpath(args.gex)
     if args.gex_n:
         args.gex_n = os.path.realpath(args.gex_n)
-    args.progeny = os.path.realpath(args.progeny)
-    args.network = os.path.realpath(args.network)
+    if args.progeny:
+        args.progeny = os.path.realpath(args.progeny)
+    if args.network:
+        args.network = os.path.realpath(args.network)
     args.results_folder = os.path.realpath(args.results_folder)
     args.results_csvs_folder = os.path.realpath(args.results_csvs_folder)
     if show:
@@ -65,14 +66,23 @@ def parse_input_parameters(show=True):
         print(">>> WELCOME TO THE SINGLE DRUG PREDICTION WORKFLOW")
         print("> Parameters:")
         print("\t- List of cells: %s" % args.cell_list)
-        if args.gene_expression:
-            print("\t- Gene expression data from GDSC: %s" % args.gene_expression)
+        print("\t- Gene expression data from GDSC: %s" % args.gene_expression)
         if args.gex:
             print("\t- Gene expression data: %s" % args.gex)
+        else:
+            print("\t- Gene expression data not provided. Will be generated in %s" % args.results_folder)
         if args.gex_n:
             print("\t- Gene expression data scale: %s" % args.gex_n)
-        print("\t- Gene expression data for progeny: %s" % args.progeny)
-        print("\t- Network file: %s" % args.network)
+        else:
+            print("\t- Gene expression data scale not provided. Will be generated in %s" % args.results_folder)
+        if args.progeny:
+            print("\t- Gene expression data for progeny: %s" % args.progeny)
+        else:
+            print("\t- Gene expression data for progeny not provided. Will be generated in %s" % args.results_folder)
+        if args.network:
+            print("\t- Network file: %s" % args.network)
+        else:
+            print("\t- Network file not provided. Will be generated in %s" % args.results_folder)
         print("\t- Jax input file: %s" % args.jax_input)
         print("\t- Results folder: %s" % args.results_folder)
         print("\t- Results CSVs folder: %s" % args.results_csvs_folder)

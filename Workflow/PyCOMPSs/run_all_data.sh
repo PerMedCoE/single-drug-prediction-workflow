@@ -22,6 +22,10 @@ runcompss -g -t \
     ${SCRIPT_DIR}/src/sdp.py \
         --cell_list ${data}/cell_list_example.txt \
         --gene_expression ${data}/Cell_line_RMA_proc_basalExp.txt \
+        --gex ${results_csvs}/gex.csv \
+        --gex_n ${results_csvs}/gex_n.csv \
+        --progeny ${results_csvs}/progeny.csv \
+        --network ${results_csvs}/network.csv \
         --genelist ${results_csvs}/genelist.csv \
         --jax_input dummy.x \
         --results_folder ${results} \
