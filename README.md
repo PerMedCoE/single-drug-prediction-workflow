@@ -157,7 +157,7 @@ All Building Blocks are already installed in MN4, and the Single Drug Prediction
 
    ```bash
    export COMPSS_PYTHON_VERSION=3
-   module load COMPSs/Trunk
+   module load COMPSs/3.1
    module load singularity/3.5.2
    module use /apps/modules/modulefiles/tools/COMPSs/libraries
    module load permedcoe
