@@ -80,66 +80,75 @@ This section explains the requirements and usage for the Single Drug Prediction 
 
 #### Usage steps
 
-1. Clone the `BuildingBlocks` repository
+1. Clone this repository:
 
-   ```bash
-   git clone https://github.com/PerMedCoE/BuildingBlocks.git
-   ```
+  ```bash
+  git clone https://github.com/PerMedCoE/single-drug-prediction-workflow.git
+  ```
 
-2. Build the required Building Block images
+2. Install the Building Blocks required for the COVID19 Workflow:
 
-   ```bash
-   cd BuildingBlocks/Resources/images
-   ## Download new BB singularity files
-   wget https://github.com/saezlab/permedcoe/archive/refs/heads/master.zip
-   unzip master.zip
-   cd permedcoe-master/containers
-   ## Build containers
-   cd toolset
-   sudo /usr/local/bin/singularity build toolset.sif toolset.singularity
-   mv toolset.sif ../../../
-   cd ..
-   cd carnivalpy
-   sudo /usr/local/bin/singularity build carnivalpy.sif carnivalpy.singularity
-   mv carnivalpy.sif ../../../
-   cd ..
-   cd ml-jax
-   sudo /usr/local/bin/singularity build ml-jax.sif ml-jax.singularity
-   mv ml-jax.sif ../../../tf-jax.sif
-   cd ..
-   cd ../..
-   ## Cleanup
-   rm -rf permedcoe-master
-   rm master.zip
-   cd ../../..
-   ```
+  ```bash
+  single-drug-prediction-workflow/BuildingBlocks/./install_BBs.sh
+  ```
 
-   > :warning: **TIP**: The singularity containers **can to be downloaded** from: https://cloud.sylabs.io/library/pablormier
+3. Get the required Building Block images from the project [B2DROP](https://b2drop.bsc.es/index.php/f/444350):
+
+  - Required images:
+      - toolset.singularity
+      - carnivalpy.singularity
+      - ml-jax.singularity
+
+  The path where these files are stored **MUST be exported in the `PERMEDCOE_IMAGES`** environment variable.
+
+  > :warning: **TIP**: These containers can be built manually as follows (be patient since some of them may take some time):
+  1. Clone the `BuildingBlocks` repository
+     ```bash
+     git clone https://github.com/PerMedCoE/BuildingBlocks.git
+     ```
+  2. Build the required Building Block images
+     ```bash
+     cd BuildingBlocks/Resources/images
+     ## Download new BB singularity files
+     wget https://github.com/saezlab/permedcoe/archive/refs/heads/master.zip
+     unzip master.zip
+     cd permedcoe-master/containers
+     ## Build containers
+     cd toolset
+     sudo /usr/local/bin/singularity build toolset.sif toolset.singularity
+     mv toolset.sif ../../../
+     cd ..
+     cd carnivalpy
+     sudo /usr/local/bin/singularity build carnivalpy.sif carnivalpy.singularity
+     mv carnivalpy.sif ../../../
+     cd ..
+     cd ml-jax
+     sudo /usr/local/bin/singularity build ml-jax.sif ml-jax.singularity
+     mv ml-jax.sif ../../../tf-jax.sif
+     cd ..
+     cd ../..
+     ## Cleanup
+     rm -rf permedcoe-master
+     rm master.zip
+     cd ../../..
+     ```
+
+     > :warning: **TIP**: The singularity containers **can to be downloaded** from: https://cloud.sylabs.io/library/pablormier
 
 
-3. Clone this repository
+**If using PyCOMPSs in local PC** (make sure that PyCOMPSs in installed):
 
-   ```bash
-   git clone https://github.com/PerMedCoE/single-drug-prediction.git
-   ```
-
-4. Install the `BuildingBlocks` package
-
-   ```bash
-   cd BuildingBlocks && ./install.sh && cd ..
-   ```
-
-5. Go to `Workflow/PyCOMPSs` folder
+4. Go to `Workflow/PyCOMPSs` folder
 
    ```bash
    cd Workflows/PyCOMPSs
    ```
 
-6. Execute `./run.sh`
+5. Execute `./run.sh`
 
-The execution is prepared to use the singularity images that **MUST** be placed into `BuildingBlocks/Resources/images` folder. If they are located in any other folder, please update the `run.sh` script setting the `PERMEDCOE_IMAGES` to the images folder.
+  The execution is prepared to use the singularity images that **MUST** be placed into `BuildingBlocks/Resources/images` folder. If they are located in any other folder, please update the `run.sh` script setting the `PERMEDCOE_IMAGES` to the images folder.
 
-> **TIP**: If you want to run the workflow with a different dataset, please update the `run.sh` script setting the `dataset` variable to the new dataset folder and their file names.
+  > **TIP**: If you want to run the workflow with a different dataset, please update the `run.sh` script setting the `dataset` variable to the new dataset folder and their file names.
 
 ### MareNostrum 4
 
@@ -183,11 +192,11 @@ All Building Blocks are already installed in MN4, and the Single Drug Prediction
 
 4. Execute `./launch.sh`
 
-This command will launch a job into the job queuing system (SLURM) requesting 2 nodes (one node acting half master and half worker, and other full worker node) for 20 minutes, and is prepared to use the singularity images that are already deployed in MN4 (located into the `PERMEDCOE_IMAGES` environment variable). It uses the dataset located into `../../Resources/data` folder.
+  This command will launch a job into the job queuing system (SLURM) requesting 2 nodes (one node acting half master and half worker, and other full worker node) for 20 minutes, and is prepared to use the singularity images that are already deployed in MN4 (located into the `PERMEDCOE_IMAGES` environment variable). It uses the dataset located into `../../Resources/data` folder.
 
-> :warning: **TIP**: If you want to run the workflow with a different dataset, please edit the `launch.sh` script and define the appropriate dataset path.
+  > :warning: **TIP**: If you want to run the workflow with a different dataset, please edit the `launch.sh` script and define the appropriate dataset path.
 
-After the execution, a `results` folder will be available with with Single Drug Prediction Workflow results.
+  After the execution, a `results` folder will be available with with Single Drug Prediction Workflow results.
 
 ## License
 
