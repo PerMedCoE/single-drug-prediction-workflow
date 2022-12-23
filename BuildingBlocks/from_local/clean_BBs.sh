@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-echo "Cleaning single drug prediction workflow required Building Blocks... Please wait..."
+echo "Cleaning single-drug-prediction workflow required Building Blocks... Please wait..."
 
 CURRENT_DIR=$(pwd)
 # SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-cd ../../BuildingBlocks
+cd ../../../BuildingBlocks
 
 cd Carnival_feature_merger
 ./clean.sh

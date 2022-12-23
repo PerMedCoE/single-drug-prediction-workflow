@@ -1,50 +1,16 @@
 #!/usr/bin/env bash
 
-echo "Installing covid-19-workflow required Building Blocks... Please wait..."
+echo "Installing single-drug-prediction required Building Blocks... Please wait..."
 
-CURRENT_DIR=$(pwd)
-# SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+python3 -m pip install 'git+https://github.com/PerMedCoE/BuildingBlocks.git@main#subdirectory=Carnival_feature_merger'
+python3 -m pip install 'git+https://github.com/PerMedCoE/BuildingBlocks.git@main#subdirectory=Carnival_gex_preprocess'
+python3 -m pip install 'git+https://github.com/PerMedCoE/BuildingBlocks.git@main#subdirectory=CarnivalPy'
+python3 -m pip install 'git+https://github.com/PerMedCoE/BuildingBlocks.git@main#subdirectory=ml_jax_drug_prediction'
+python3 -m pip install 'git+https://github.com/PerMedCoE/BuildingBlocks.git@main#subdirectory=omnipath'
+python3 -m pip install 'git+https://github.com/PerMedCoE/BuildingBlocks.git@main#subdirectory=progeny'
+python3 -m pip install 'git+https://github.com/PerMedCoE/BuildingBlocks.git@main#subdirectory=tf_enrichment'
+# python3 -m pip install 'git+https://github.com/PerMedCoE/BuildingBlocks.git@main#subdirectory=Carnival'
+# python3 -m pip install 'git+https://github.com/PerMedCoE/BuildingBlocks.git@main#subdirectory=CellNOpt'
+# python3 -m pip install 'git+https://github.com/PerMedCoE/BuildingBlocks.git@main#subdirectory=export_solver_hdf5'
 
-cd ../../BuildingBlocks
-
-cd Carnival_feature_merger
-./install.sh
-cd ..
-
-cd Carnival_gex_preprocess
-./install.sh
-cd ..
-
-cd CarnivalPy
-./install.sh
-cd ..
-
-cd ml_jax_drug_prediction
-./install.sh
-cd ..
-
-cd omnipath
-./install.sh
-cd ..
-
-cd progeny
-./install.sh
-cd ..
-
-cd tf_enrichment
-./install.sh
-cd ..
-
-# cd Carnival
-# ./install.sh
-# cd ..
-
-# cd CellNOpt
-# ./install.sh
-# cd ..
-
-# cd export_solver_hdf5
-# ./install.sh
-# cd ..
-
-cd ${CURRENT_DIR}
+echo "single-drug-prediction required Building Blocks installed"
