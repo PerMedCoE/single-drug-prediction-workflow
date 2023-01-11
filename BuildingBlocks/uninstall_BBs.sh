@@ -1,50 +1,16 @@
 #!/usr/bin/env bash
 
-echo "Uninstalling covid-19-workflow required Building Blocks... Please wait..."
+echo "Uninstalling single-drug-prediction required Building Blocks... Please wait..."
 
-CURRENT_DIR=$(pwd)
-# SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+python3 -m pip uninstall -y Carnival_feature_merger-BB
+python3 -m pip uninstall -y Carnival_gex_preprocess-BB
+python3 -m pip uninstall -y CarnivalPy-BB
+python3 -m pip uninstall -y ml_jax_drug_prediction-BB
+python3 -m pip uninstall -y omnipath-BB
+python3 -m pip uninstall -y progeny-BB
+python3 -m pip uninstall -y tf_enrichment-BB
+# python3 -m pip uninstall -y Carnival-BB
+# python3 -m pip uninstall -y CellNOpt-BB
+# python3 -m pip uninstall -y export_solver_hdf5-BB
 
-cd ../../BuildingBlocks
-
-cd Carnival_feature_merger
-./uninstall.sh
-cd ..
-
-cd Carnival_gex_preprocess
-./uninstall.sh
-cd ..
-
-cd CarnivalPy
-./uninstall.sh
-cd ..
-
-cd ml_jax_drug_prediction
-./uninstall.sh
-cd ..
-
-cd omnipath
-./uninstall.sh
-cd ..
-
-cd progeny
-./uninstall.sh
-cd ..
-
-cd tf_enrichment
-./uninstall.sh
-cd ..
-
-# cd Carnival
-# ./uninstall.sh
-# cd ..
-
-# cd CellNOpt
-# ./uninstall.sh
-# cd ..
-
-# cd export_solver_hdf5
-# ./uninstall.sh
-# cd ..
-
-cd ${CURRENT_DIR}
+echo "Uninstall finished"
