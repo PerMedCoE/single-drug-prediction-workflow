@@ -48,7 +48,8 @@ if [ ! -f ${tmpdir}/gex.csv ]; then
     wget -O ${tmpdir}/gdsc_gex.zip https://www.cancerrxgene.org/gdsc1000/GDSC1000_WebResources/Data/preprocessed/Cell_line_RMA_proc_basalExp.txt.zip
     unzip ${tmpdir}/gdsc_gex.zip -d ${tmpdir}/
     Carnival_gex_preprocess_BB \
-        --mount_point ${CARNIVAL_GEX_PREPROCESS_ASSETS}/assets:${CARNIVAL_GEX_PREPROCESS_ASSETS}/assets,${CARNIVAL_GEX_PREPROCESS_WD}:${CARNIVAL_GEX_PREPROCESS_WD} \
+        --mount_point ${CARNIVAL_GEX_PREPROCESS_ASSETS}/assets:${CARNIVAL_GEX_PREPROCESS_ASSETS}/assets \
+        --tmpdir ${CARNIVAL_GEX_PREPROCESS_WD} \
         --input_file ${tmpdir}/Cell_line_RMA_proc_basalExp.txt \
         --col_genes GENE_SYMBOLS \
         --scale FALSE \
@@ -56,14 +57,14 @@ if [ ! -f ${tmpdir}/gex.csv ]; then
         --tsv TRUE \
         --remove DATA. \
         --verbose TRUE \
-        --output_file ${tmpdir}/gex.csv \
-        --working_directory ${CARNIVAL_GEX_PREPROCESS_WD}
+        --output_file ${tmpdir}/gex.csv
 fi
 
 # Do the same but this time scale also genes across cell lines
 if [ ! -f ${tmpdir}/gex_n.csv ]; then
     Carnival_gex_preprocess_BB \
-        --mount_point ${CARNIVAL_GEX_PREPROCESS_ASSETS}/assets:${CARNIVAL_GEX_PREPROCESS_ASSETS}/assets,${CARNIVAL_GEX_PREPROCESS_WD}:${CARNIVAL_GEX_PREPROCESS_WD} \
+        --mount_point ${CARNIVAL_GEX_PREPROCESS_ASSETS}/assets:${CARNIVAL_GEX_PREPROCESS_ASSETS}/assets \
+        --tmpdir ${CARNIVAL_GEX_PREPROCESS_WD} \
         --input_file ${tmpdir}/gex.csv \
         --col_genes GENE_SYMBOLS \
         --scale TRUE \
@@ -71,8 +72,7 @@ if [ ! -f ${tmpdir}/gex_n.csv ]; then
         --tsv FALSE \
         --remove DATA. \
         --verbose TRUE \
-        --output_file ${tmpdir}/gex_n.csv \
-        --working_directory ${CARNIVAL_GEX_PREPROCESS_WD}
+        --output_file ${tmpdir}/gex_n.csv
 fi
 
 rm ${tmpdir}/Cell_line_RMA_proc_basalExp.txt
@@ -82,7 +82,8 @@ if [ ! -f ${tmpdir}/progeny.csv ]; then
     # e.g progeny -i gex.csv Human 60 GENE_SYMBOLS TRUE GENE_title FALSE 3000 TRUE TRUE -o progeny11.csv
     # -i 'input_file', 'organism', 'ntop', 'col_genes', 'scale', 'exclude_cols', 'tsv', 'perms', 'zscore', 'verbose' -o ...
     progeny_BB \
-        --mount_point ${PROGENY_ASSETS}/assets:${PROGENY_ASSETS}/assets,${PROGENY_WD}:${PROGENY_WD} \
+        --mount_point ${PROGENY_ASSETS}/assets:${PROGENY_ASSETS}/assets \
+        --tmpdir ${PROGENY_WD} \
         --input_file ${tmpdir}/gex.csv \
         --organism Human \
         --ntop 100 \
@@ -93,18 +94,17 @@ if [ ! -f ${tmpdir}/progeny.csv ]; then
         --perms 1 \
         --zscore FALSE \
         --verbose TRUE \
-        --output_file ${tmpdir}/progeny.csv \
-        --working_directory ${PROGENY_WD}
+        --output_file ${tmpdir}/progeny.csv
 fi
 
 # Get SIF from omnipath
 if [ ! -f ${tmpdir}/network.csv ]; then
     # Downloads the file
     omnipath_BB \
-        --mount_point ${OMNIPATH_ASSETS}/assets:${OMNIPATH_ASSETS}/assets,${OMNIPATH_WD}:${OMNIPATH_WD} \
+        --mount_point ${OMNIPATH_ASSETS}/assets:${OMNIPATH_ASSETS}/assets \
+        --tmpdir ${OMNIPATH_WD} \
         --verbose false \
-        --output_file ${tmpdir}/network.csv \
-        --working_directory ${OMNIPATH_WD}
+        --output_file ${tmpdir}/network.csv
 fi
 
 for cell in "${cells[@]}"
@@ -119,7 +119,8 @@ do
         # Run CARNIVAL on the sample and extract the features
         cp ${tmpdir}/network.csv ${tmpdir}/${cell}/
         tf_enrichment_BB \
-            --mount_point ${TF_ENRICHMENT_ASSETS}/assets:${TF_ENRICHMENT_ASSETS}/assets,${TF_ENRICHMENT_WD}:${TF_ENRICHMENT_WD} \
+            --mount_point ${TF_ENRICHMENT_ASSETS}/assets:${TF_ENRICHMENT_ASSETS}/assets \
+            --tmpdir ${TF_ENRICHMENT_WD} \
             --input_file ${tmpdir}/gex_n.csv \
             --tsv FALSE \
             --weight_col $cell \
@@ -130,37 +131,37 @@ do
             --verbose TRUE \
             --pval_threshold 0.1 \
             --export_carnival TRUE \
-            --output_file ${tmpdir}/${cell}/measurements.csv \
-            --working_directory ${TF_ENRICHMENT_WD}
+            --output_file ${tmpdir}/${cell}/measurements.csv
         # Run CarnivalPy on the sample using locally installed gurobi in the current conda environment from which this script is executed. The environment is mounted
         # in the contaner and the LD_LIBRARY_PATH is changed accordingly so the lib can find the gurobi files. Note that Gurobi needs a valid license for this.
         CarnivalPy_BB \
-            --mount_point ${CARNIVALPY_ASSETS}/assets:${CARNIVALPY_ASSETS}/assets,${CARNIVALPY_WD}:${CARNIVALPY_WD} \
+            --mount_point ${CARNIVALPY_ASSETS}/assets:${CARNIVALPY_ASSETS}/assets \
+            --tmpdir ${CARNIVALPY_WD} \
             --path ${tmpdir}/${cell}/ \
             --penalty 0 \
             --solver cbc \
             --tol 0.1 \
             --maxtime 500 \
-            --export ${tmpdir}/${cell}/carnival.csv \
-            --working_directory ${CARNIVALPY_WD}
+            --export ${tmpdir}/${cell}/carnival.csv
         rm ${tmpdir}/${cell}/network.csv
     fi
 done
 
 # Merge the features into a single CSV, focus only on some specific genes
 Carnival_feature_merger_BB \
-    --mount_point ${CARNIVAL_FEATURE_MERGER_ASSETS}/assets:${CARNIVAL_FEATURE_MERGER_ASSETS}/assets,${CARNIVAL_FEATURE_MERGER_WD}:${CARNIVAL_FEATURE_MERGER_WD} \
+    --mount_point ${CARNIVAL_FEATURE_MERGER_ASSETS}/assets:${CARNIVAL_FEATURE_MERGER_ASSETS}/assets \
+    --tmpdir ${CARNIVAL_FEATURE_MERGER_WD} \
     --input_dir ${tmpdir} \
     --feature_file $(pwd)/../Resources/data/genelist.txt \
     --merge_csv_file ${tmpdir}/progeny.csv \
     --merge_csv_index sample \
     --merge_csv_prefix F_ \
-    --output_file $(pwd)/cell_features.csv \
-    --working_directory ${CARNIVAL_FEATURE_MERGER_WD}
+    --output_file $(pwd)/cell_features.csv
 
 # Train a model to predict IC50 values for unknown cells (using the progeny+carnival features) and known drugs
 ml_jax_drug_prediction_BB \
-    --mount_point ${ML_JAX_DRUG_PREDICTION_ASSETS}/assets:${ML_JAX_DRUG_PREDICTION_ASSETS}/assets,${ML_JAX_DRUG_PREDICTION_WD}:${ML_JAX_DRUG_PREDICTION_WD} \
+    --mount_point ${ML_JAX_DRUG_PREDICTION_ASSETS}/assets:${ML_JAX_DRUG_PREDICTION_ASSETS}/assets \
+    --tmpdir ${ML_JAX_DRUG_PREDICTION_WD} \
     --input_file .x \
     --drug_features .none \
     --cell_features $(pwd)/cell_features.csv \
@@ -170,7 +171,6 @@ ml_jax_drug_prediction_BB \
     --latent_size 10 \
     --test_drugs 0.1 \
     --test_cells 0.1 \
-    --output_file $(pwd)/model.npz \
-    --working_directory ${ML_JAX_DRUG_PREDICTION_WD}
+    --output_file $(pwd)/model.npz
 
 enable_pycompss
