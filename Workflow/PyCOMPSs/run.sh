@@ -21,8 +21,12 @@ if [ -d "$results_csvs" ]; then
 fi
 touch dummy.x
 
+# Prepare environment file:
+env_script="$(pwd)/worker_env.sh"
+echo "export PERMEDCOE_IMAGES=${PERMEDCOE_IMAGES}" > ${env_script}
 
 runcompss -g -t \
+    --env_script=${env_script} \
     --python_interpreter=python3 \
     ${SCRIPT_DIR}/src/sdp.py \
         --cell_list ${data}/cell_list_example.txt \
@@ -31,3 +35,5 @@ runcompss -g -t \
         --jax_input dummy.x \
         --results_folder ${results} \
         --results_csvs_folder ${results_csvs}
+
+rm ${env_script}

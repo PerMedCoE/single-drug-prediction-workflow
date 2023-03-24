@@ -5,6 +5,8 @@ import shutil
 
 # To set building block debug mode
 from permedcoe import set_debug
+# To set the default PyCOMPSs TMPDIR
+from permedcoe import TMPDIR
 # Import building block tasks
 from Carnival_gex_preprocess_BB import preprocess as carnival_gex_preprocess
 from progeny_BB import progeny
@@ -63,7 +65,8 @@ def main():
     if not os.path.exists(gex_csv):
         if args.gene_expression:
             print("INFO: gex does not exist. Creating in: %s using %s" % (gex_csv, args.gene_expression))
-            carnival_gex_preprocess(input_file=args.gene_expression,
+            carnival_gex_preprocess(tmpdir=TMPDIR,
+                                    input_file=args.gene_expression,
                                     output_file=gex_csv,
                                     col_genes="GENE_SYMBOLS",
                                     scale="FALSE",
@@ -84,7 +87,8 @@ def main():
         gex_n_csv = os.path.join(args.results_folder, "gex_n.csv")
     if not os.path.exists(gex_n_csv):
         print("INFO: gex_n does not exist. Creating in: %s using %s" % (gex_n_csv, gex_csv))
-        carnival_gex_preprocess(input_file=gex_csv,
+        carnival_gex_preprocess(tmpdir=TMPDIR,
+                                input_file=gex_csv,
                                 output_file=gex_n_csv,
                                 col_genes="GENE_SYMBOLS",
                                 scale="TRUE",
@@ -103,7 +107,8 @@ def main():
         progeny_csv = os.path.join(args.results_folder, "progeny.csv")
     if not os.path.exists(progeny_csv):
         print("INFO: progeny does not exist. Creating in: %s using %s" % (progeny_csv, gex_csv))
-        progeny(input_file=gex_csv,
+        progeny(tmpdir=TMPDIR,
+                input_file=gex_csv,
                 output_file=progeny_csv,
                 organism="Human",
                 ntop="100",
@@ -125,7 +130,8 @@ def main():
         network_csv = os.path.join(args.results_folder, "network.csv")
     if not os.path.exists(network_csv):
         print("INFO: network does not exist. Creating in: %s" % network_csv)
-        omnipath(debug=False,
+        omnipath(tmpdir=TMPDIR,
+                 debug=False,
                  output_file=network_csv
         )
     else:
@@ -138,7 +144,8 @@ def main():
 
         # 5th STEP: Run CARNIVAL on the sample and extract the features
         cell_measurement_csv = os.path.join(cell_result_folder, "measurements.csv")
-        tf_enrichment(input_file=gex_n_csv,
+        tf_enrichment(tmpdir=TMPDIR,
+                      input_file=gex_n_csv,
                       output_file=cell_measurement_csv,
                       tsv="FALSE",
                       weight_col=cell,
@@ -162,7 +169,8 @@ def main():
         # 6th STEP: Run CarnivalPy on the sample using cbc
         cell_result_folder = os.path.join(args.results_folder, cell)
         carnival_csv = os.path.join(cell_result_folder, "carnival.csv")
-        carnivalpy(path=cell_result_folder,
+        carnivalpy(tmpdir=TMPDIR,
+                   path=cell_result_folder,
                    penalty=0,
                    solver="cbc",
                    tol=0.1,
@@ -178,7 +186,8 @@ def main():
 
     # 7th STEP: Merge the features into a single CSV, focus only on some specific genes
     cell_features_csv = os.path.join(args.results_csvs_folder, "cell_features.csv")
-    carnival_feature_merger(input_dir=args.results_folder,
+    carnival_feature_merger(tmpdir=TMPDIR,
+                            input_dir=args.results_folder,
                             output_file=cell_features_csv,
                             feature_file=args.genelist,
                             merge_csv_file=progeny_csv,
@@ -188,7 +197,8 @@ def main():
 
     # 8th STEP: Train a model to predict IC50 values for unknown cells (using the progeny+carnival features) and known drugs
     model_npz = os.path.join(args.results_csvs_folder, "model.npz")
-    ml_jax_drug_prediction(input_file=args.jax_input,
+    ml_jax_drug_prediction(tmpdir=TMPDIR,
+                           input_file=args.jax_input,
                            output_file=model_npz,
                            drug_features=".none",
                            cell_features=cell_features_csv,

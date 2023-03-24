@@ -1,0 +1,12 @@
+# This file defines the required building blocks for this workflow
+#  - Lines that start with # will be ignored
+Carnival_feature_merger
+Carnival_gex_preprocess
+CarnivalPy
+ml_jax_drug_prediction
+omnipath
+progeny
+tf_enrichment
+# Carnival
+# CellNOpt
+# export_solver_hdf5
