@@ -2,7 +2,15 @@
 
 # Workflow example for building a predictive model of IC50 from cell features using CARNIVAL
 
-IMAGES_FOLDER="../../BuildingBlocks/Resources/images/"
+if [[ -z "${PERMEDCOE_IMAGES}" ]]; then
+  default_images=$(realpath ${SCRIPT_DIR}/../../BuildingBlocks/Resources/images/)/
+  export PERMEDCOE_IMAGES=${default_images}
+  echo "WARNING: PERMEDCOE_IMAGES environment variable not set. Using default: ${default_images}"
+else
+  echo "INFO: Using PERMEDCOE_IMAGES from: ${PERMEDCOE_IMAGES}"
+fi
+export COMPUTING_UNITS=1
+
 
 tmpdir="./tmp"
 

@@ -1,13 +1,16 @@
 #!/bin/bash
 
 # Workflow but using Building Blocks
-export PERMEDCOE_IMAGES="../../BuildingBlocks/Resources/images/"
+if [[ -z "${PERMEDCOE_IMAGES}" ]]; then
+  default_images=$(realpath ${SCRIPT_DIR}/../../BuildingBlocks/Resources/images/)/
+  export PERMEDCOE_IMAGES=${default_images}
+  echo "WARNING: PERMEDCOE_IMAGES environment variable not set. Using default: ${default_images}"
+else
+  echo "INFO: Using PERMEDCOE_IMAGES from: ${PERMEDCOE_IMAGES}"
+fi
+export COMPUTING_UNITS=1
 
-# Disable PyCOMPSs if installed
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-source ${SCRIPT_DIR}/aux.sh
-disable_pycompss
-
 tmpdir="${SCRIPT_DIR}/tmp_BB/"
 
 if [ ! -d ${tmpdir} ]; then
@@ -155,5 +158,3 @@ ml_jax_drug_prediction_BB \
     --test_drugs 0.1 \
     --test_cells 0.1 \
     --output_file $(pwd)/model.npz
-
-enable_pycompss
